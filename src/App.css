@@ -1,0 +1,24 @@
+body {
+  background-color: whitesmoke;
+}
+
+.ui.card>.content>.header:not(.ui), .ui.cards>.card>.content>.header:not(.ui) {
+  font-size: .8em
+}
+
+.ui.card .meta, .ui.cards>.card .meta {
+  font-size: .8em
+}
+
+.ui.right.floated.image, .ui.right.floated.images {
+  float: right;
+  margin-right: 0;
+  margin-bottom: 1em;
+  margin-left: 0em;
+  width: 25px
+}
+
+.ui.card>.content, .ui.cards>.card>.content {
+  padding: .7em .7em;
+}
+
