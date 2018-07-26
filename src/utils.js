@@ -49,13 +49,13 @@ export const formatDateString = date =>
 //
 export const normalize = forecasts => {
   const daily = forecasts.reduce((accum, forecast) => {
-    const dateTime = new Date(forecast.dt * 1000);
-    dateTime.setHours(0, 0, 0, 0, 0);
-    const timestamp = dateTime.getTime();
+    const key = forecast.dt_txt.split(' ')[0];
     /* eslint-disable no-param-reassign */
-    accum[timestamp] = accum[timestamp] || { hourly: [] };
-    accum[timestamp].hourly.push({
-      ...forecast.main,
+    accum[key] = accum[key] || { hourly: [] };
+    accum[key].hourly.push({
+      temp: forecast.main.temp,
+      temp_max: forecast.main.temp_max,
+      temp_min: forecast.main.temp_min,
       date: new Date(forecast.dt * 1000),
       icon: `${BASE_ICON_URL}/${forecast.weather[0].icon}.png`
     });
@@ -65,12 +65,12 @@ export const normalize = forecasts => {
   // on the hourly forecast (falls short when less than a full day's hourly forecast)
   Object.keys(daily).forEach(key => {
     const value = daily[key];
-    value.date = new Date(parseInt(key, 10));
+    value.date = new Date(key);
     value.max = Math.round(
       Math.max(...value.hourly.map(hourly => hourly.temp_max))
     );
     value.min = Math.round(
-      Math.min(...value.hourly.map(hourly => hourly.temp_max))
+      Math.min(...value.hourly.map(hourly => hourly.temp_min))
     );
     value.icon = mode(value.hourly.map(el => el.icon));
   });

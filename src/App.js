@@ -3,6 +3,7 @@ import { Card, Container, Header } from 'semantic-ui-react';
 import SearchDropdown from './components/SearchDropdown';
 import './App.css';
 import api from './api';
+import { normalize } from './utils';
 import WeatherCard from './components/WeatherCard';
 import ForecastGrid from './components/ForecastGrid';
 
@@ -26,7 +27,7 @@ class App extends Component {
   // call the weather API to get the hourly forecasts by cityId
   //
   loadWeather = async cityId => {
-    const weather = await api.getHourlyForecast(cityId);
+    const weather = normalize(await api.getHourlyForecast(cityId));
     this.setState({ weather });
   };
   //

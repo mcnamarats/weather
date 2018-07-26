@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { normalize } from './utils';
 import { API_KEY, WEATHER_URI } from './config';
 import cities from './mock-data//cities.json';
 //
@@ -8,7 +7,7 @@ import cities from './mock-data//cities.json';
 export const getHourlyForecast = async (cityId, units = 'metric') => {
   const url = `${WEATHER_URI}/forecast?id=${cityId}&units=${units}&APPID=${API_KEY}`;
   const res = await axios.get(url);
-  return normalize(res.data.list);
+  return res.data.list;
 };
 //
 // Odd that the weather API does not provide a city lookup, however, they do supply static
