@@ -23,16 +23,17 @@ describe('The utility functions', () => {
     });
   });
 
-  describe('normaize function', () => {
-    const forecasts = utils.normalize(weather.list);
-    test('There are 6 weather forcasts grouped by day of year', () => {
-      expect(Object.keys(forecasts).length).toEqual(6);
-    });
-    test('Each daily forecast has at least one hourly forecast', () => {
-      const counts = Object.values(forecasts).map(
-        forecast => forecast.hourly.length
-      );
-      expect(Math.min(...counts)).toBeGreaterThan(0);
+  describe('groupBy function', () => {
+    const data = [
+      { key: '12', value: 'value1' },
+      { key: '12', value: 'value2' },
+      { key: '13', value: 'value3' }
+    ];
+    const grouped = utils.groupBy(value => value.key, data);
+    test('there are two grouped elements', () => {
+      expect(Object.keys(grouped).length).toEqual(2);
+      expect(grouped['12'].data.length).toEqual(2);
+      expect(grouped['13'].data.length).toEqual(1);
     });
   });
 });

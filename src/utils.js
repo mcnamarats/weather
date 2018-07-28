@@ -1,4 +1,3 @@
-import { BASE_ICON_URL } from './config';
 //
 // brute force mode implementation, that returns the most
 // frequent element of an array
@@ -45,41 +44,21 @@ export const formatDateString = date =>
     }
   );
 //
-// Group the hourly weather forecasts by day to facilitate UI
+// group a list and create an object literal by key
 //
-export const normalize = forecasts => {
-  const daily = forecasts.reduce((accum, forecast) => {
-    const dateTime = new Date(forecast.dt * 1000);
-    dateTime.setHours(0, 0, 0, 0, 0);
-    const timestamp = dateTime.getTime();
-    /* eslint-disable no-param-reassign */
-    accum[timestamp] = accum[timestamp] || { hourly: [] };
-    accum[timestamp].hourly.push({
-      ...forecast.main,
-      date: new Date(forecast.dt * 1000),
-      icon: `${BASE_ICON_URL}/${forecast.weather[0].icon}.png`
-    });
-    return accum;
-  }, {});
-  // as we do not have access to the daily forecast (paid API), we estimate min/max temp based
-  // on the hourly forecast (falls short when less than a full day's hourly forecast)
-  Object.keys(daily).forEach(key => {
-    const value = daily[key];
-    value.date = new Date(parseInt(key, 10));
-    value.max = Math.round(
-      Math.max(...value.hourly.map(hourly => hourly.temp_max))
-    );
-    value.min = Math.round(
-      Math.min(...value.hourly.map(hourly => hourly.temp_max))
-    );
-    value.icon = mode(value.hourly.map(el => el.icon));
+export const groupBy = (f, seq) => {
+  const result = {};
+  seq.forEach(value => {
+    const key = f(value);
+    if (!result[key]) result[key] = { data: [] };
+    result[key].data.push(value);
   });
-  return daily;
+  return result;
 };
 
 export default {
   mode,
   formatTimeString,
   formatDateString,
-  normalize
+  groupBy
 };

@@ -13,8 +13,8 @@ const setup = () => {
       [timestamp]: {
         date: new Date(timestamp / 1000),
         icon: '10d',
-        min: 0,
-        max: 1,
+        tempMin: 0,
+        tempMax: 1,
         hourly: []
       }
     }

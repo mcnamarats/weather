@@ -5,6 +5,37 @@ import './App.css';
 import api from './api';
 import WeatherCard from './components/WeatherCard';
 import ForecastGrid from './components/ForecastGrid';
+import { groupBy, mode } from './utils';
+import { BASE_ICON_URL } from './config';
+//
+// Group the hourly weather forecasts by day to facilitate UI
+//
+export const normalize = hourly => {
+  const keyFn = value => value.dt_txt.split(' ')[0];
+  const daily = groupBy(keyFn, hourly);
+  const result = {};
+  Object.keys(daily).forEach(key => {
+    const value = daily[key];
+    result[key] = {
+      date: new Date(key),
+      tempMax: Math.round(
+        Math.max(...value.data.map(data => data.main.temp_max))
+      ),
+      tempMin: Math.round(
+        Math.min(...value.data.map(data => data.main.temp_min))
+      ),
+      icon: `${BASE_ICON_URL}/${mode(
+        value.data.map(data => data.weather[0].icon)
+      )}.png`,
+      hourly: value.data.map(data => ({
+        date: new Date(data.dt_txt),
+        temp: Math.round(data.main.temp),
+        icon: `${BASE_ICON_URL}/${data.weather[0].icon}.png`
+      }))
+    };
+  });
+  return result;
+};
 
 class App extends Component {
   state = {
@@ -27,7 +58,7 @@ class App extends Component {
   //
   loadWeather = async cityId => {
     const weather = await api.getHourlyForecast(cityId);
-    this.setState({ weather });
+    this.setState({ weather: normalize(weather) });
   };
   //
   // when the user enters search criteria in the search dropdown,
@@ -77,8 +108,8 @@ class App extends Component {
                 handleCardClick={this.handleCardClick}
                 color={selected === key ? 'whitesmoke' : undefined}
                 icon={value.icon}
-                min={value.min}
-                max={value.max}
+                min={value.tempMin}
+                max={value.tempMax}
                 date={value.date}
               />
             );
