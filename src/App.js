@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Card, Container, Header } from 'semantic-ui-react';
+import PropTypes from 'prop-types';
+import { Card, Container, Header, Loader } from 'semantic-ui-react';
 import SearchDropdown from './components/SearchDropdown';
 import './App.css';
 import api from './api';
@@ -37,11 +38,16 @@ export const normalize = hourly => {
   return result;
 };
 
+export const WeatherLoader = ({ active }) => <Loader active={active} />;
+WeatherLoader.propTypes = {
+  active: PropTypes.bool.isRequired
+};
 class App extends Component {
   state = {
     weather: {},
     cities: [],
-    selected: null
+    selected: null,
+    isLoading: false
   };
   //
   // load cities from API based on a city filter
@@ -75,7 +81,11 @@ class App extends Component {
   //
   // A city has been selected, lookup the 5-day forecasts
   //
-  handleChange = (e, { value }) => this.loadWeather(value);
+  handleChange = (e, { value }) => {
+    this.setState({ isLoading: true });
+    this.loadWeather(value);
+    this.setState({ isLoading: false });
+  };
   //
   // when a daily forecast card is selected, setting the 'selected' state will
   // render the hourly forecasts.  Set the background color for selected card, and
@@ -87,9 +97,10 @@ class App extends Component {
   };
 
   render() {
-    const { weather, selected } = this.state;
+    const { weather, selected, isLoading } = this.state;
     return (
       <Container>
+        <WeatherLoader active={isLoading} />
         <Header>Weather</Header>
         <SearchDropdown
           data={this.state.cities}
