@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Card, Container, Header, Loader } from 'semantic-ui-react';
+import { Card, Container, Header } from 'semantic-ui-react';
 import SearchDropdown from './components/SearchDropdown';
 import './App.css';
 import api from './api';
 import WeatherCard from './components/WeatherCard';
 import ForecastGrid from './components/ForecastGrid';
+import WeatherLoader from './components/WeatherLoader';
 import { groupBy, mode } from './utils';
 import { BASE_ICON_URL } from './config';
 //
@@ -38,10 +38,6 @@ export const normalize = hourly => {
   return result;
 };
 
-export const WeatherLoader = ({ active }) => <Loader active={active} />;
-WeatherLoader.propTypes = {
-  active: PropTypes.bool.isRequired
-};
 class App extends Component {
   state = {
     weather: {},
@@ -54,7 +50,7 @@ class App extends Component {
   //
   loadCities = async filter => {
     const cities = await api.filterCities(filter);
-    // data shape reqired by semaitic-ui
+    // data shape reqired by semantic-ui
     this.setState({
       cities: cities.map(city => ({ value: city.id, text: city.name }))
     });
@@ -92,8 +88,7 @@ class App extends Component {
   // reset color for previously selected
   //
   handleCardClick = (e, { datakey }) => {
-    const weather = { ...this.state.weather };
-    this.setState({ selected: datakey, weather });
+    this.setState({ selected: datakey });
   };
 
   render() {

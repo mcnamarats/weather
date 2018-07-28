@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import App, { WeatherLoader } from '../App';
+import App from '../App';
 
 const setup = () => {
   const wrapper = shallow(<App />);
@@ -80,10 +80,5 @@ describe('The App component', () => {
     const { wrapper, weather, timestamp } = setup();
     wrapper.setState({ weather, selected: timestamp });
     expect(wrapper.find('WeatherCard').prop('color')).toEqual('whitesmoke');
-  });
-
-  test('WeatherLoader component is loaded', () => {
-    const loader = shallow(<WeatherLoader active />);
-    expect(loader).toBeDefined();
   });
 });
