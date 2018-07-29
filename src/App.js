@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { Card, Container, Header } from 'semantic-ui-react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { fetchCities } from './module';
 import SearchDropdown from './components/SearchDropdown';
 import './App.css';
 import api from './api';
@@ -38,22 +41,17 @@ export const normalize = hourly => {
   return result;
 };
 
-class App extends Component {
+export class App extends Component {
   state = {
     weather: {},
-    cities: [],
     selected: null,
     isLoading: false
   };
   //
   // load cities from API based on a city filter
   //
-  loadCities = async filter => {
-    const cities = await api.filterCities(filter);
-    // data shape reqired by semantic-ui
-    this.setState({
-      cities: cities.map(city => ({ value: city.id, text: city.name }))
-    });
+  loadCities = filter => {
+    this.props.fetchCities(filter);
   };
   //
   // call the weather API to get the hourly forecasts by cityId
@@ -70,9 +68,7 @@ class App extends Component {
     // clear selected state to remove previous hourly forecasts
     this.setState({ selected: null });
     // debounce - at least 3 characters before calling the API
-    return searchQuery.length < 3
-      ? this.setState({ cities: [] })
-      : this.loadCities(searchQuery);
+    if (searchQuery.length > 2) this.loadCities(searchQuery);
   };
   //
   // A city has been selected, lookup the 5-day forecasts
@@ -98,7 +94,7 @@ class App extends Component {
         <WeatherLoader active={isLoading} />
         <Header>Weather</Header>
         <SearchDropdown
-          data={this.state.cities}
+          data={this.props.cities}
           handleSearchChange={this.handleSearchChange}
           handleChange={this.handleChange}
           placeholder="Enter city name..."
@@ -132,4 +128,19 @@ class App extends Component {
   }
 }
 
-export default App;
+App.propTypes = {
+  fetchCities: PropTypes.func.isRequired,
+  cities: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.number.isRequired,
+      text: PropTypes.string.isRequired
+    })
+  ).isRequired
+};
+
+export default connect(
+  state => state,
+  {
+    fetchCities
+  }
+)(App);

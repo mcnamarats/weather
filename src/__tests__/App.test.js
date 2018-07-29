@@ -1,23 +1,39 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import App from '../App';
+import { App } from '../App';
 
-const setup = () => {
-  const wrapper = shallow(<App />);
-  const timestamp = '1532620800000';
+const setup = propOverrides => {
+  const props = {
+    fetchCities: jest.fn(),
+    cities: [],
+    isLoading: false
+  };
+
+  const key = '123456';
+  const weather = {
+    [key]: {
+      date: new Date('2018-07-29T00:00:00.000Z'),
+      tempMax: 20,
+      tempMin: 14,
+      icon: 'http://openweathermap.org/img/w/10d.png',
+      hourly: [
+        {
+          date: new Date('2018-07-28T16:00:00.000Z'),
+          temp: 15,
+          icon: 'http://openweathermap.org/img/w/02n.png'
+        }
+      ]
+    }
+  };
+
+  const wrapper = shallow(<App {...props} />);
 
   return {
     wrapper,
-    timestamp,
-    weather: {
-      [timestamp]: {
-        date: new Date(timestamp / 1000),
-        icon: '10d',
-        tempMin: 0,
-        tempMax: 1,
-        hourly: []
-      }
-    }
+    key,
+    weather,
+    props,
+    ...propOverrides
   };
 };
 
@@ -43,6 +59,13 @@ describe('The App component', () => {
     expect(wrapper.instance().loadCities).toHaveBeenCalledTimes(1);
   });
 
+  test('fetchCities called when filter has at least 3 characters', () => {
+    const { wrapper } = setup();
+    // console.log(wrapper.instance().props.fetchCities);
+    wrapper.instance().handleSearchChange(null, { searchQuery: 'Lon' });
+    expect(wrapper.instance().props.fetchCities).toHaveBeenCalledTimes(1);
+  });
+
   test('loadWeather is called when a city is selected', () => {
     const { wrapper, timestamp } = setup();
     wrapper.instance().loadWeather = jest.fn();
@@ -52,16 +75,10 @@ describe('The App component', () => {
   });
 
   test("when handleCardClick is called, the selected state is assigned the card's key", () => {
-    const { wrapper, weather, timestamp } = setup();
-    wrapper.setState({ weather, selected: timestamp });
-    wrapper.instance().handleCardClick(null, { datakey: timestamp });
-    expect(wrapper.state().selected).toEqual(timestamp);
-  });
-
-  test('invoking loadCities sets the state appropriately', async () => {
-    const { wrapper } = setup();
-    await wrapper.instance().loadCities('London');
-    expect(wrapper.state().cities.length).toBeGreaterThan(0);
+    const { wrapper, weather, key } = setup();
+    wrapper.setState({ weather, selected: key });
+    wrapper.instance().handleCardClick(null, { datakey: key });
+    expect(wrapper.state().selected).toEqual(key);
   });
 
   test('invoking loadWeather sets the state appropriately', async () => {
@@ -77,8 +94,8 @@ describe('The App component', () => {
   });
 
   test("selected WeatherCard has color 'whitesmoke", () => {
-    const { wrapper, weather, timestamp } = setup();
-    wrapper.setState({ weather, selected: timestamp });
+    const { wrapper, weather, key } = setup();
+    wrapper.setState({ weather, selected: key });
     expect(wrapper.find('WeatherCard').prop('color')).toEqual('whitesmoke');
   });
 });
