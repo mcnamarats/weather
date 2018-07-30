@@ -1,14 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { App } from '../App';
+import createMockStore from 'redux-mock-store';
+import ConnectedApp, { App } from '../App';
 
 const setup = propOverrides => {
-  const props = {
-    fetchCities: jest.fn(),
-    cities: [],
-    isLoading: false
-  };
-
   const key = '123456';
   const weather = {
     [key]: {
@@ -24,6 +19,14 @@ const setup = propOverrides => {
         }
       ]
     }
+  };
+
+  const props = {
+    fetchCities: jest.fn(),
+    fetchWeather: jest.fn(),
+    cities: [],
+    weather,
+    isLoading: false
   };
 
   const wrapper = shallow(<App {...props} />);
@@ -61,17 +64,22 @@ describe('The App component', () => {
 
   test('fetchCities called when filter has at least 3 characters', () => {
     const { wrapper } = setup();
-    // console.log(wrapper.instance().props.fetchCities);
     wrapper.instance().handleSearchChange(null, { searchQuery: 'Lon' });
     expect(wrapper.instance().props.fetchCities).toHaveBeenCalledTimes(1);
   });
 
   test('loadWeather is called when a city is selected', () => {
-    const { wrapper, timestamp } = setup();
+    const { wrapper, key } = setup();
     wrapper.instance().loadWeather = jest.fn();
     wrapper.update();
-    wrapper.instance().handleChange(null, { value: timestamp });
+    wrapper.instance().handleChange(null, { value: key });
     expect(wrapper.instance().loadWeather).toHaveBeenCalledTimes(1);
+  });
+
+  test('fetchWeather is called when a daily forecast is selected', () => {
+    const { wrapper, key } = setup();
+    wrapper.instance().handleChange(null, { value: key });
+    expect(wrapper.instance().props.fetchWeather).toHaveBeenCalledTimes(1);
   });
 
   test("when handleCardClick is called, the selected state is assigned the card's key", () => {
@@ -79,12 +87,6 @@ describe('The App component', () => {
     wrapper.setState({ weather, selected: key });
     wrapper.instance().handleCardClick(null, { datakey: key });
     expect(wrapper.state().selected).toEqual(key);
-  });
-
-  test('invoking loadWeather sets the state appropriately', async () => {
-    const { wrapper } = setup();
-    await wrapper.instance().loadWeather(12345);
-    expect(Object.keys(wrapper.state().weather).length).toBeGreaterThan(0);
   });
 
   test('unselected WeatherCard has color of undefined', () => {
@@ -97,5 +99,12 @@ describe('The App component', () => {
     const { wrapper, weather, key } = setup();
     wrapper.setState({ weather, selected: key });
     expect(wrapper.find('WeatherCard').prop('color')).toEqual('whitesmoke');
+  });
+
+  test('just for coverage, test connect HOC', () => {
+    const { props } = setup();
+    const store = createMockStore([])({});
+    const wrapper = shallow(<ConnectedApp store={store} {...props} />);
+    expect(wrapper).toBeDefined();
   });
 });

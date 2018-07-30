@@ -2,63 +2,27 @@ import React, { Component } from 'react';
 import { Card, Container, Header } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { fetchCities } from './module';
+import { fetchCities, fetchWeather } from './module';
 import SearchDropdown from './components/SearchDropdown';
-import './App.css';
-import api from './api';
 import WeatherCard from './components/WeatherCard';
 import ForecastGrid from './components/ForecastGrid';
 import WeatherLoader from './components/WeatherLoader';
-import { groupBy, mode } from './utils';
-import { BASE_ICON_URL } from './config';
-//
-// Group the hourly weather forecasts by day to facilitate UI
-//
-export const normalize = hourly => {
-  const keyFn = value => value.dt_txt.split(' ')[0];
-  const daily = groupBy(keyFn, hourly);
-  const result = {};
-  Object.keys(daily).forEach(key => {
-    const value = daily[key];
-    result[key] = {
-      date: new Date(key),
-      tempMax: Math.round(
-        Math.max(...value.data.map(data => data.main.temp_max))
-      ),
-      tempMin: Math.round(
-        Math.min(...value.data.map(data => data.main.temp_min))
-      ),
-      icon: `${BASE_ICON_URL}/${mode(
-        value.data.map(data => data.weather[0].icon)
-      )}.png`,
-      hourly: value.data.map(data => ({
-        date: new Date(data.dt_txt),
-        temp: Math.round(data.main.temp),
-        icon: `${BASE_ICON_URL}/${data.weather[0].icon}.png`
-      }))
-    };
-  });
-  return result;
-};
 
 export class App extends Component {
   state = {
-    weather: {},
-    selected: null,
-    isLoading: false
+    selected: null
   };
   //
-  // load cities from API based on a city filter
+  // load cities on a city filter
   //
   loadCities = filter => {
     this.props.fetchCities(filter);
   };
   //
-  // call the weather API to get the hourly forecasts by cityId
+  // get the hourly forecasts by selected cityId
   //
-  loadWeather = async cityId => {
-    const weather = await api.getHourlyForecast(cityId);
-    this.setState({ weather: normalize(weather) });
+  loadWeather = cityId => {
+    this.props.fetchWeather(cityId);
   };
   //
   // when the user enters search criteria in the search dropdown,
@@ -74,9 +38,7 @@ export class App extends Component {
   // A city has been selected, lookup the 5-day forecasts
   //
   handleChange = (e, { value }) => {
-    this.setState({ isLoading: true });
     this.loadWeather(value);
-    this.setState({ isLoading: false });
   };
   //
   // when a daily forecast card is selected, setting the 'selected' state will
@@ -88,7 +50,8 @@ export class App extends Component {
   };
 
   render() {
-    const { weather, selected, isLoading } = this.state;
+    const { weather, isLoading } = this.props;
+    const { selected } = this.state;
     return (
       <Container>
         <WeatherLoader active={isLoading} />
@@ -117,7 +80,7 @@ export class App extends Component {
             );
           })}
         </Card.Group>
-        {this.state.weather[selected] && (
+        {weather[selected] && (
           <ForecastGrid
             hourly={weather[selected].hourly}
             numColumns={weather[selected].hourly.length}
@@ -135,12 +98,16 @@ App.propTypes = {
       value: PropTypes.number.isRequired,
       text: PropTypes.string.isRequired
     })
-  ).isRequired
+  ).isRequired,
+  fetchWeather: PropTypes.func.isRequired,
+  weather: PropTypes.object.isRequired,
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default connect(
   state => state,
   {
-    fetchCities
+    fetchCities,
+    fetchWeather
   }
 )(App);

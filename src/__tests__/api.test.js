@@ -17,6 +17,6 @@ describe('The api functions', () => {
   });
 
   test('getHourlyForecast returns normalized data', async () => {
-    expect(Object.keys(await getHourlyForecast(12345)).length).toEqual(39);
+    expect(Object.keys(await getHourlyForecast(12345)).length).toEqual(5);
   });
 });
