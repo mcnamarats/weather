@@ -1,5 +1,15 @@
-import { applyMiddleware, createStore } from 'redux';
+import { applyMiddleware, createStore, compose } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from './module';
 
-export default createStore(reducer, applyMiddleware(thunk));
+/* eslint-disable no-underscore-dangle */
+const reduxDevMiddleware =
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
+
+export default createStore(
+  reducer,
+  compose(
+    applyMiddleware(thunk),
+    reduxDevMiddleware
+  )
+);
