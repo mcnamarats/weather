@@ -26,7 +26,8 @@ const setup = propOverrides => {
     fetchWeather: jest.fn(),
     cities: [],
     weather,
-    isLoading: false
+    isLoading: false,
+    ...propOverrides
   };
 
   const wrapper = shallow(<App {...props} />);
@@ -83,22 +84,26 @@ describe('The App component', () => {
   });
 
   test("when handleCardClick is called, the selected state is assigned the card's key", () => {
-    const { wrapper, weather, key } = setup();
-    wrapper.setState({ weather, selected: key });
+    const { wrapper, key } = setup();
+    wrapper.setState({ selected: key });
     wrapper.instance().handleCardClick(null, { datakey: key });
     expect(wrapper.state().selected).toEqual(key);
   });
 
   test('unselected WeatherCard has color of undefined', () => {
-    const { wrapper, weather } = setup();
-    wrapper.setState({ weather });
+    const { wrapper } = setup();
     expect(wrapper.find('WeatherCard').prop('color')).toEqual(undefined);
   });
 
   test("selected WeatherCard has color 'whitesmoke", () => {
-    const { wrapper, weather, key } = setup();
-    wrapper.setState({ weather, selected: key });
+    const { wrapper, key } = setup();
+    wrapper.setState({ selected: key });
     expect(wrapper.find('WeatherCard').prop('color')).toEqual('whitesmoke');
+  });
+
+  test('when weather has no items CardGroup itemsPerRow is set to 1', () => {
+    const { wrapper } = setup({ weather: {} });
+    expect(wrapper.find('CardGroup').prop('itemsPerRow')).toEqual(1);
   });
 
   test('just for coverage, test connect HOC', () => {

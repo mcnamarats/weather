@@ -94,12 +94,7 @@ export class App extends Component {
 
 App.propTypes = {
   fetchCities: PropTypes.func.isRequired,
-  cities: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.number.isRequired,
-      text: PropTypes.string.isRequired
-    })
-  ).isRequired,
+  cities: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   fetchWeather: PropTypes.func.isRequired,
   weather: PropTypes.shape({}).isRequired,
   isLoading: PropTypes.bool.isRequired
