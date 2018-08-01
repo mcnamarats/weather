@@ -7,6 +7,7 @@ import SearchDropdown from './components/SearchDropdown';
 import WeatherCard from './components/WeatherCard';
 import ForecastGrid from './components/ForecastGrid';
 import WeatherLoader from './components/WeatherLoader';
+import './App.css';
 
 export class App extends Component {
   state = {
@@ -100,7 +101,7 @@ App.propTypes = {
     })
   ).isRequired,
   fetchWeather: PropTypes.func.isRequired,
-  weather: PropTypes.object.isRequired,
+  weather: PropTypes.shape({}).isRequired,
   isLoading: PropTypes.bool.isRequired
 };
 
